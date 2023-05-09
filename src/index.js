@@ -1,8 +1,8 @@
-const http = require("http");
-const url = require("url");
-const querystring = require("querystring");
-const path = require("path");
-const fs = require("fs");
+const http = require('http');
+const url = require('url');
+const querystring = require('querystring');
+const path = require('path');
+const fs = require('fs');
 
 /**
  * Maps results from JIRA model to easier to handle model (flatten) and
@@ -18,25 +18,27 @@ function flatten(body, fields) {
     const values = {};
     fields.forEach((field) => {
       switch (field) {
-        case "assignee":
-          values[names[field]] = i.fields.assignee ? {
-            name: i.fields.assignee.displayName,
-            email: i.fields.assignee.emailAddress
-          } : {};
+        case 'assignee':
+          values[names[field]] = i.fields.assignee
+            ? {
+                name: i.fields.assignee.displayName,
+                email: i.fields.assignee.emailAddress,
+              }
+            : {};
           break;
-        case "issuetype":
+        case 'issuetype':
           values[names[field]] = i.fields.issuetype.name;
           break;
-        case "priority":
+        case 'priority':
           values[names[field]] = i.fields.priority.name;
           break;
-        case "resolution":
+        case 'resolution':
           values[names[field]] = i.fields.resolution.name;
           break;
-        case "status":
+        case 'status':
           values[names[field]] = i.fields.status.name;
           break;
-        case "timetracking":
+        case 'timetracking':
           break;
         default:
           values[names[field]] = i.fields[field];
@@ -47,7 +49,7 @@ function flatten(body, fields) {
       id: i.id,
       key: i.key,
       self: i.self,
-      ...values
+      ...values,
     };
   });
 }
@@ -63,25 +65,27 @@ function flatten(body, fields) {
  */
 async function proxySearch(auth, base, searchApi, jql, fields) {
   const headers = new Headers();
-  headers.append("Authorization", `Bearer ${auth}`);
+  headers.append('Authorization', `Bearer ${auth}`);
 
   query = querystring.stringify({
     jql,
     maxResults: 100,
     fields: fields,
-    expand: "names"
+    expand: 'names',
   });
   const url = `${base}${searchApi}?${query}`;
   console.log(url);
 
   const response = await fetch(url, {
-    method: "GET",
+    method: 'GET',
     headers,
-    redirect: "follow"
+    redirect: 'follow',
   });
 
   if (response.status !== 200) {
-    const error = new Error(response.statusText || "Failed to execute proxy call");
+    const error = new Error(
+      response.statusText || 'Failed to execute proxy call',
+    );
     error.statusCode = response.status;
     throw error;
   }
@@ -105,15 +109,15 @@ async function proxySearch(auth, base, searchApi, jql, fields) {
  */
 async function handleSearch(req, res, query) {
   const jql = query.jql;
-  const auth = query.auth || process.env["JIRA_AUTH"];
-  const fieldsString = query.fields || process.env["JIRA_FIELDS"];
-  const base = query.base || process.env["JIRA_BASE"];
-  const searchApi = query.api || "/rest/api/2/search";
+  const auth = query.auth || process.env['JIRA_AUTH'];
+  const fieldsString = query.fields || process.env['JIRA_FIELDS'];
+  const base = query.base || process.env['JIRA_BASE'];
+  const searchApi = query.api || '/rest/api/2/search';
   const raw = query.raw;
 
-  const fields = fieldsString.split(",");
+  const fields = fieldsString.split(',');
   let data = await proxySearch(auth, base, searchApi, jql, fields);
-  if (raw !== "true") {
+  if (raw !== 'true') {
     data = flatten(data, fields);
   }
   return data;
@@ -125,7 +129,7 @@ async function handleSearch(req, res, query) {
  * @param res
  */
 function handleNotFound(req, res) {
-  const error = new Error("Page not found!");
+  const error = new Error('Page not found!');
   error.statusCode = 404;
   throw error;
 }
@@ -137,7 +141,7 @@ function handleNotFound(req, res) {
  * @param data
  */
 function writeResponse(res, statusCode, data) {
-  res.writeHead(statusCode, { "Content-Type": "application/json" });
+  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
   res.write(JSON.stringify(data));
   res.end();
 }
@@ -147,15 +151,15 @@ function writeResponse(res, statusCode, data) {
  * @returns {Server<typeof IncomingMessage, typeof ServerResponse>}
  */
 function app() {
-  console.log("Setup of App server");
+  console.log('Setup of App server');
   const server = http.createServer(async (req, res) => {
     const { pathname, query } = url.parse(req.url, true);
-    console.log("Processing request", pathname, JSON.stringify(query));
+    console.log('Processing request', pathname, JSON.stringify(query));
 
     try {
       let data;
       switch (pathname) {
-        case "/search":
+        case '/search':
           data = await handleSearch(req, res, query);
           break;
         default:
@@ -168,7 +172,7 @@ function app() {
       const statusCode = error.statusCode || 500;
       writeResponse(res, statusCode, {
         code: statusCode,
-        message: error.message
+        message: error.message,
       });
     }
   });
@@ -181,18 +185,18 @@ function app() {
  * @returns {Promise<void>}
  */
 function loadEnv(fromPath) {
-  let envFile = path.join(fromPath, "env");
+  let envFile = path.join(fromPath, 'env');
   let stats = fs.statSync(envFile);
   if (!stats.isFile()) {
     return;
   }
 
   let env = fs.readFileSync(envFile, {
-    encoding: "utf8"
+    encoding: 'utf8',
   });
-  env = env.split("\n").filter(line => line.length > 0);
-  env.forEach(line => {
-    const i = line.indexOf("=");
+  env = env.split('\n').filter((line) => line.length > 0);
+  env.forEach((line) => {
+    const i = line.indexOf('=');
     let k = line.substring(0, i);
     let v = line.substring(i + 1);
     process.env[k] = v;
@@ -200,16 +204,16 @@ function loadEnv(fromPath) {
 }
 
 if (require.main === module) {
-  loadEnv(path.join(__dirname, ".."));
-  
+  loadEnv(path.join(__dirname, '..'));
+
   // validate that we have all required information
-  if (!process.env["JIRA_BASE"]) {
-    throw new Error("Missing JIRA_BASE environment variable");
+  if (!process.env['JIRA_BASE']) {
+    throw new Error('Missing JIRA_BASE environment variable');
   }
-  if (!process.env["JIRA_AUTH"]) {
-    throw new Error("Missing JIRA_AUTH environment variable");
+  if (!process.env['JIRA_AUTH']) {
+    throw new Error('Missing JIRA_AUTH environment variable');
   }
-  const port = process.env["PORT"] || 3000;
+  const port = process.env['PORT'] || 3000;
 
   app().listen(port, () => {
     console.log(`Server is listening on port ${port}`);
@@ -218,4 +222,3 @@ if (require.main === module) {
   // This module is being included as a dependency
   module.exports = { flatten, app, loadEnv };
 }
-

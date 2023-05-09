@@ -15,8 +15,7 @@ describe('Main Suite', () => {
           self: 'https://jira.acme.com/rest/api/2/issue/1124565',
           key: 'ABC-74974',
           fields: {
-            summary:
-              'Feature not working as expected',
+            summary: 'Feature not working as expected',
             issuetype: {
               self: 'https://jira.acme.com/rest/api/2/issuetype/10019',
               id: '10019',
@@ -65,8 +64,7 @@ describe('Main Suite', () => {
             status: {
               self: 'https://jira.acme.com/rest/api/2/status/10013',
               description: '',
-              iconUrl:
-                'https://jira.acme.com/images/icons/statuses/closed.png',
+              iconUrl: 'https://jira.acme.com/images/icons/statuses/closed.png',
               name: 'Done',
               id: '10013',
               statusCategory: {
@@ -118,5 +116,4 @@ describe('Main Suite', () => {
       Status: 'Done',
     });
   });
-;
 });

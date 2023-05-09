@@ -8,7 +8,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "format": "prettier --write \"*.js\" \"*.json\" \"src/**/*.js\" \"test/**/*.js\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "start:dev": "nodemon src/index.js",
     "test": "jest",
