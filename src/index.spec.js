@@ -26,7 +26,6 @@ describe('Main Suite', () => {
               subtask: false,
               avatarId: 10605,
             },
-            fixVersions: [],
             customfield_10000: 'ABC-26422',
             assignee: {
               self: 'https://jira.acme.com/rest/api/2/user?username=Jane_Smith%40acme.com',
@@ -47,6 +46,17 @@ describe('Main Suite', () => {
               active: true,
               timeZone: 'America/Toronto',
             },
+            fixVersions: [
+              {
+                self: 'https://jira.acme.com/rest/api/2/version/10911',
+                id: '10911',
+                description: '',
+                name: 'V1.4',
+                archived: false,
+                released: false,
+                releaseDate: '2023-05-29',
+              },
+            ],
             priority: {
               self: 'https://jira.acme.com/rest/api/2/priority/10004',
               iconUrl:
@@ -105,7 +115,14 @@ describe('Main Suite', () => {
         email: 'Jane_Smith@acme.com',
       },
       'Epic Link': 'ABC-26422',
-      'Fix Version/s': [],
+      'Fix Version/s': [
+        {
+          'Release Date': '2023-05-29',
+          archived: false,
+          name: 'V1.4',
+          released: false,
+        },
+      ],
       'Issue Type': 'Bug',
       Priority: '1. Resolve Immediately',
       Resolution: 'Done',

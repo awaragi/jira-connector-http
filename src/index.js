@@ -38,6 +38,14 @@ function flatten(body, fields) {
         case 'status':
           values[names[field]] = i.fields.status.name;
           break;
+        case 'fixVersions':
+          values[names[field]] = i.fields.fixVersions.map((v) => ({
+            name: v.name,
+            archived: v.archived,
+            released: v.released,
+            'Release Date': v.releaseDate,
+          }));
+          break;
         case 'timetracking':
           break;
         default:
@@ -91,8 +99,7 @@ async function proxySearch(auth, base, searchApi, jql, fields) {
   }
 
   // TODO paginate
-  const data = JSON.parse(await response.text());
-  return data;
+  return JSON.parse(await response.text());
 }
 
 /**
@@ -152,7 +159,7 @@ function writeResponse(res, statusCode, data) {
  */
 function app() {
   console.log('Setup of App server');
-  const server = http.createServer(async (req, res) => {
+  return http.createServer(async (req, res) => {
     const { pathname, query } = url.parse(req.url, true);
     console.log('Processing request', pathname, JSON.stringify(query));
 
@@ -176,7 +183,6 @@ function app() {
       });
     }
   });
-  return server;
 }
 
 /**
@@ -198,8 +204,7 @@ function loadEnv(fromPath) {
   env.forEach((line) => {
     const i = line.indexOf('=');
     const k = line.substring(0, i);
-    const v = line.substring(i + 1);
-    process.env[k] = v;
+    process.env[k] = line.substring(i + 1);
   });
 }
 
