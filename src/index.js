@@ -12,8 +12,8 @@ const fs = require('fs');
  * @returns {*}
  */
 function flatten(body, fields) {
-  let data = body.issues;
-  let names = body.names;
+  const data = body.issues;
+  const names = body.names;
   return data.map((i) => {
     const values = {};
     fields.forEach((field) => {
@@ -67,10 +67,10 @@ async function proxySearch(auth, base, searchApi, jql, fields) {
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${auth}`);
 
-  query = querystring.stringify({
+  const query = querystring.stringify({
     jql,
     maxResults: 100,
-    fields: fields,
+    fields,
     expand: 'names',
   });
   const url = `${base}${searchApi}?${query}`;
@@ -91,7 +91,7 @@ async function proxySearch(auth, base, searchApi, jql, fields) {
   }
 
   // TODO paginate
-  let data = JSON.parse(await response.text());
+  const data = JSON.parse(await response.text());
   return data;
 }
 
@@ -109,9 +109,9 @@ async function proxySearch(auth, base, searchApi, jql, fields) {
  */
 async function handleSearch(req, res, query) {
   const jql = query.jql;
-  const auth = query.auth || process.env['JIRA_AUTH'];
-  const fieldsString = query.fields || process.env['JIRA_FIELDS'];
-  const base = query.base || process.env['JIRA_BASE'];
+  const auth = query.auth || process.env.JIRA_AUTH;
+  const fieldsString = query.fields || process.env.JIRA_FIELDS;
+  const base = query.base || process.env.JIRA_BASE;
   const searchApi = query.api || '/rest/api/2/search';
   const raw = query.raw;
 
@@ -185,8 +185,8 @@ function app() {
  * @returns {Promise<void>}
  */
 function loadEnv(fromPath) {
-  let envFile = path.join(fromPath, 'env');
-  let stats = fs.statSync(envFile);
+  const envFile = path.join(fromPath, 'env');
+  const stats = fs.statSync(envFile);
   if (!stats.isFile()) {
     return;
   }
@@ -197,8 +197,8 @@ function loadEnv(fromPath) {
   env = env.split('\n').filter((line) => line.length > 0);
   env.forEach((line) => {
     const i = line.indexOf('=');
-    let k = line.substring(0, i);
-    let v = line.substring(i + 1);
+    const k = line.substring(0, i);
+    const v = line.substring(i + 1);
     process.env[k] = v;
   });
 }
@@ -207,13 +207,13 @@ if (require.main === module) {
   loadEnv(path.join(__dirname, '..'));
 
   // validate that we have all required information
-  if (!process.env['JIRA_BASE']) {
+  if (!process.env.JIRA_BASE) {
     throw new Error('Missing JIRA_BASE environment variable');
   }
-  if (!process.env['JIRA_AUTH']) {
+  if (!process.env.JIRA_AUTH) {
     throw new Error('Missing JIRA_AUTH environment variable');
   }
-  const port = process.env['PORT'] || 3000;
+  const port = process.env.PORT || 3000;
 
   app().listen(port, () => {
     console.log(`Server is listening on port ${port}`);

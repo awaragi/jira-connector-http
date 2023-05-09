@@ -1,6 +1,5 @@
 const request = require('supertest');
 const { app } = require('../src/index');
-const fs = require('fs');
 const path = require('path');
 const { loadEnv } = require('../src');
 
@@ -18,7 +17,7 @@ describe('AppController (e2e)', () => {
   it('/search (GET)', async () => {
     const path = '/search';
     const params = new URLSearchParams({
-      jql: process.env['JQL'],
+      jql: process.env.JQL,
       raw: false,
     });
 
